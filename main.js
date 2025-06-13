@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
@@ -10,12 +12,11 @@ const PORT = process.env.PORT || 3000
 
 const upload = multer({ dest: 'uploads/' })
 
-const TELEGRAM_TOKEN = '7738409627:AAGxrG8H_LSyXppPea9t5zB268shh20Iuwo' // ganti dengan token bot Anda
+const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_API;
 const CHAT_IDS_FILE = path.join(__dirname, 'chatid.json')
 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true })
 
-// Helper functions for chat ID storage
 function readChatIds() {
     try {
         if (!fs.existsSync(CHAT_IDS_FILE)) return [];
@@ -29,7 +30,6 @@ function saveChatIds(chatIds) {
     fs.writeFileSync(CHAT_IDS_FILE, JSON.stringify(chatIds, null, 2))
 }
 
-// Listen for /start and save chat id
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const userName = msg.from.first_name;
@@ -38,7 +38,7 @@ bot.onText(/\/start/, (msg) => {
 
     if (!chatIds.includes(chatId)) {
         chatIds.push(chatId);
-        saveChatIds(chatIds); // chatId DISIMPAN KE FILE chatid.json
+        saveChatIds(chatIds);
     }
 
     bot.sendMessage(chatId, `Assalamu'alaikum, ${userName}! Anda akan menerima laporan pengaduan di sini, Barakallahu fiikum.`);
@@ -78,7 +78,7 @@ Rincian: ${data.rincian}
                 await bot.sendMessage(chatId, message, { parse_mode: 'HTML' })
             }
         }
-        if (file) fs.unlinkSync(file.path) // hapus file setelah dikirim
+        if (file) fs.unlinkSync(file.path)
         // res.json({ message: 'Laporan berhasil dikirim!' })
     } catch (err) {
         console.error(err)
