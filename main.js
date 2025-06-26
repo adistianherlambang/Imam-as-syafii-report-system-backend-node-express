@@ -53,7 +53,7 @@ app.use(cors ({
 app.post('/', upload.single('image'), async (req, res) => {
     const data = req.body
     const file = req.file
-
+    res.json({ message: 'ok' })
     let message = `
 <b>Laporan Baru</b>
 Nama: ${data.nama}
@@ -61,7 +61,7 @@ NIP: ${data.nip}
 Jenis: ${data.option}
 Tanggal & Lokasi: ${data.tanggalLokasi}
 Rincian: ${data.rincian}
-    `
+`
 
     try {
         const chatIds = readChatIds();
