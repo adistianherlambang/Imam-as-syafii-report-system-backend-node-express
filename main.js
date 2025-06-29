@@ -45,10 +45,11 @@ bot.onText(/\/start/, (msg) => {
     console.log(`Chat ID: ${chatId}`);
 });
 
-app.use(cors ({
-    origin: 'http://localhost:5173',
-    credentials: true
-}))
+// app.use(cors ({
+//     origin: 'http://localhost:5173',
+//     credentials: true
+// }))
+app.use(cors());
 
 app.post('/', upload.single('image'), async (req, res) => {
     const data = req.body
