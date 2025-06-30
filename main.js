@@ -5,6 +5,7 @@ const cors = require('cors')
 const multer = require('multer')
 const TelegramBot = require('node-telegram-bot-api')
 const path = require('path')
+const fs = require('fs') // Tambahkan kembali import fs
 
 const app = express()
 const PORT = process.env.PORT || 3000
