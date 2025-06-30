@@ -4,7 +4,6 @@ const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
 const TelegramBot = require('node-telegram-bot-api')
-const fs = require('fs')
 const path = require('path')
 
 const app = express()
@@ -15,21 +14,22 @@ const upload = multer({ dest: 'uploads/' })
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_API;
 const CHAT_IDS_FILE = path.join(__dirname, 'chatid.json')
 
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true })
+app.use(cors());
+app.use(express.json()); // Tambahkan agar bisa menerima JSON dari Telegram webhook
 
-function readChatIds() {
-    try {
-        if (!fs.existsSync(CHAT_IDS_FILE)) return [];
-        const data = fs.readFileSync(CHAT_IDS_FILE, 'utf-8')
-        return JSON.parse(data)
-    } catch {
-        return []
-    }
-}
-function saveChatIds(chatIds) {
-    fs.writeFileSync(CHAT_IDS_FILE, JSON.stringify(chatIds, null, 2))
-}
+// Inisialisasi bot tanpa polling
+const bot = new TelegramBot(TELEGRAM_TOKEN);
 
+// Endpoint untuk menerima webhook dari Telegram
+app.post('/api/main', (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
+
+// Set webhook (jalankan sekali secara manual, bukan di serverless)
+// bot.setWebHook('https://your-vercel-domain.vercel.app/api/main');
+
+// Handler bot.onText tetap sama
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const userName = msg.from.first_name;
@@ -44,13 +44,6 @@ bot.onText(/\/start/, (msg) => {
     bot.sendMessage(chatId, `Assalamu'alaikum, ${userName}! Anda akan menerima laporan pengaduan di sini, Barakallahu fiikum.`);
     console.log(`Chat ID: ${chatId}`);
 });
-
-// app.use(cors ({
-//     origin: 'http://localhost:5173',
-//     credentials: true
-// }))
-app.use(cors());
-
 
 app.get('/', (req, res) => {
     res.send('Server is running')
@@ -94,5 +87,18 @@ Rincian: ${data.rincian}
 // app.listen(PORT, () => {
 //     console.log(`server berjalan di port: ${PORT}`)
 // })
+
+function readChatIds() {
+    try {
+        if (!fs.existsSync(CHAT_IDS_FILE)) return [];
+        const data = fs.readFileSync(CHAT_IDS_FILE, 'utf-8')
+        return JSON.parse(data)
+    } catch {
+        return []
+    }
+}
+function saveChatIds(chatIds) {
+    fs.writeFileSync(CHAT_IDS_FILE, JSON.stringify(chatIds, null, 2))
+}
 
 module.exports = app; // Export Express app for Vercel serverless function
