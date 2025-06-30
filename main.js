@@ -94,3 +94,5 @@ Rincian: ${data.rincian}
 // app.listen(PORT, () => {
 //     console.log(`server berjalan di port: ${PORT}`)
 // })
+
+module.exports = app; // Export Express app for Vercel serverless function
